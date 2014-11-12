@@ -21,10 +21,11 @@ import scala.collection.JavaConversions._
 @Configuration
 trait DefaultMongoConfiguration extends AbstractMongoConfiguration {
 
+  val databaseName : String
+
   @Autowired
   var env : Environment = null
 
-  val mongoConfigurationPrefix : String
   val writeResultChecking = WriteResultChecking.EXCEPTION
 
   implicit def mongoConfigWrapper(config : String) = new {
@@ -42,7 +43,6 @@ trait DefaultMongoConfiguration extends AbstractMongoConfiguration {
     }
 
     def get : String = get[String](null)
-    def get[T : ClassTag] : T = get[T](null)
     def getOptional = getOptional[String]
   }
 
@@ -114,6 +114,9 @@ trait DefaultMongoConfiguration extends AbstractMongoConfiguration {
     template
   }
 
+  protected def mongoConfigurationPrefix = getDatabaseName
+
+  protected override def getDatabaseName() : String = databaseName
 }
 
 object DefaultMongoConfiguration {
