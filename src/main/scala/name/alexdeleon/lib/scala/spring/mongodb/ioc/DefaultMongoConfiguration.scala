@@ -1,6 +1,3 @@
-/*
-* Copyright (C) 2014 IO Informatics Inc.
-*/
 package name.alexdeleon.lib.scala.spring.mongodb.ioc
 
 import DefaultMongoConfiguration._
