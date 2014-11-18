@@ -100,6 +100,8 @@ trait DefaultMongoConfiguration extends AbstractMongoConfiguration {
     val converter = new MappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory()), mongoMappingContext())
     converter.setTypeMapper(mongoTypeMapper)
     converter.setCustomConversions(customConversions())
+    // TODO: Can we fix this? -|
+    converter.afterPropertiesSet() //This is needed because spring fails to recognize this as a bean when creating mongoTemplate
     converter
   }
 
