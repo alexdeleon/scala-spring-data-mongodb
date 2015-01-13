@@ -1,16 +1,18 @@
 package name.alexdeleon.lib.scala.spring.mongodb.ioc
 
-import DefaultMongoConfiguration._
 import com.mongodb._
+import name.alexdeleon.lib.scala.spring.mongodb.converter.ScalaOptionConverter
+import name.alexdeleon.lib.scala.spring.mongodb.ioc.DefaultMongoConfiguration._
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.core.convert.support.DefaultConversionService
 import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration
-import org.springframework.data.mongodb.core.{WriteResultChecking, MongoTemplate}
-import org.springframework.data.mongodb.core.convert.{DefaultMongoTypeMapper, DefaultDbRefResolver, MappingMongoConverter}
+import org.springframework.data.mongodb.core.convert.{CustomConversions, DefaultDbRefResolver, DefaultMongoTypeMapper, MappingMongoConverter}
+import org.springframework.data.mongodb.core.{MongoTemplate, WriteResultChecking}
 
-import scala.reflect.{ClassTag, classTag}
 import scala.collection.JavaConversions._
+import scala.reflect.{ClassTag, classTag}
 
 /**
  * @author Alexander De Leon <me@alexdeleon.name>
@@ -105,6 +107,14 @@ trait DefaultMongoConfiguration extends AbstractMongoConfiguration {
     converter
   }
 
+  final override def customConversions(): CustomConversions = {
+    val conversionService = new DefaultConversionService
+    val customConversions = new CustomConversions(converters ++ Seq(new ScalaOptionConverter(conversionService)))
+    customConversions.registerConvertersIn(conversionService)
+    customConversions
+  }
+
+
   protected def mongoTypeMapper : DefaultMongoTypeMapper = new DefaultMongoTypeMapper(null)
 
   @Bean override def mongoTemplate : MongoTemplate = {
@@ -112,6 +122,8 @@ trait DefaultMongoConfiguration extends AbstractMongoConfiguration {
     template.setWriteResultChecking(writeResultChecking)
     template
   }
+
+  protected def converters : Seq[AnyRef] = Seq.empty
 
   protected def mongoConfigurationPrefix = getDatabaseName
 
