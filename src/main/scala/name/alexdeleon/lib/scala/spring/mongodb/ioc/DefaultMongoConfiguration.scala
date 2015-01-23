@@ -1,7 +1,7 @@
 package name.alexdeleon.lib.scala.spring.mongodb.ioc
 
 import com.mongodb._
-import name.alexdeleon.lib.scala.spring.mongodb.converter.ScalaOptionConverter
+import name.alexdeleon.lib.scala.spring.mongodb.converter.{JavaToScalaCollectionConverter, ScalaMappingMongoConverter, ScalaOptionConverter}
 import name.alexdeleon.lib.scala.spring.mongodb.ioc.DefaultMongoConfiguration._
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -99,7 +99,7 @@ trait DefaultMongoConfiguration extends AbstractMongoConfiguration {
   }
 
   override def mappingMongoConverter : MappingMongoConverter = {
-    val converter = new MappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory()), mongoMappingContext())
+    val converter = new ScalaMappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory()), mongoMappingContext())
     converter.setTypeMapper(mongoTypeMapper)
     converter.setCustomConversions(customConversions())
     // TODO: Can we fix this? -|
@@ -109,7 +109,7 @@ trait DefaultMongoConfiguration extends AbstractMongoConfiguration {
 
   final override def customConversions(): CustomConversions = {
     val conversionService = new DefaultConversionService
-    val customConversions = new CustomConversions(converters ++ Seq(new ScalaOptionConverter(conversionService)))
+    val customConversions = new CustomConversions(converters ++ Seq(new ScalaOptionConverter(conversionService), new JavaToScalaCollectionConverter))
     customConversions.registerConvertersIn(conversionService)
     customConversions
   }
